@@ -71,6 +71,14 @@ describe('Testes do recurso/tarefas', () => {
         expect(response.body.msg).toBe("Tarefa não encontrada");
     });
 
+    test('PUT /id deve retornar 422', async () => {
+        const response = await request
+            .put(`${url}/${id}`)
+            .send({nome: "", concluida: true});
+        expect(response.status).toBe(422);
+        expect(response.body.msg).toBe("Nome da tarefa é obrigatório");
+    });
+
     test('DELETE /id deve retornar 204', async () => {
         const response = await request.delete(`${url}/${id}`);
         expect(response.status).toBe(204);
