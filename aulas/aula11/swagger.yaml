@@ -11,6 +11,7 @@ tags:
 paths:
   /tarefas: 
     get:
+      summary: Lista todas as tarefas
       tags: 
         - tarefas
       responses:
@@ -18,7 +19,12 @@ paths:
           content:
             application/json:
               schema:
-                type: array
+                $ref: '#/components/schemas/ArrayOfTarefas'
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro500'
     post:
       tags: 
         - tarefas
@@ -27,22 +33,26 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                nome:
+                  type: string
+                  example: "Estudar Swagger"
       responses:
         201:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Tarefa'
         422:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Erro422'
         500:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Erro500'
   /tarefas/id:
     get:
       tags: 
@@ -52,26 +62,143 @@ paths:
           name: tarefaId
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         200:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Tarefa'
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro400'
         404:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Erro404'
         500:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Erro500'
     put:
+      security:
+        - JWTAuth: []
       tags: 
         - tarefas
+      parameters:
+        - in: path
+          name: tarefaId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                concluida:
+                  type: boolean
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarefa'
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro400'
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro404'
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro422'
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro500'
     delete:
       tags: 
         - tarefas
+      parameters:
+        - in: path
+          name: tarefaId
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          content:
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro400'
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro404'
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro500'
+components:
+  schemas:
+    Tarefa:
+      type: object
+      properties:
+        _id:
+          type: string
+        nome:
+          type: string
+        concluida:
+          type: boolean
+    ArrayOfTarefas:
+      type: array
+      items:
+        $ref: '#/components/schemas/Tarefa'
+    Erro400:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Id inválido"
+    Erro404:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Tarefa não encontrada"
+    Erro422:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Nome é obrigatório"
+    Erro500:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Erro interno na API"
+  securitySchemes:
+    JWTAuth:
+      type: apiKey
+      in: header
+      name: Authorization
